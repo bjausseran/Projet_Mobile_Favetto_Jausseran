@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "466400074937",
+    "firebase_url": "https://mobile-tictactoe-d220c.firebaseio.com",
+    "project_id": "mobile-tictactoe-d220c",
+    "storage_bucket": "mobile-tictactoe-d220c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466400074937:android:19965bcf757f304299cf68",
+        "android_client_info": {
+          "package_name": "com.favetto.td_android_jausseran_favetto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "466400074937-k7b8qc2j5n8k3dl1ku3dvb83ns76nn2r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuJhEaRt6MOraYRpInrLON__UrlcoZq_U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "466400074937-k7b8qc2j5n8k3dl1ku3dvb83ns76nn2r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
