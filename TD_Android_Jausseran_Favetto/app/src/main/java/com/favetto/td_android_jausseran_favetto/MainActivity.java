@@ -1,5 +1,6 @@
 package com.favetto.td_android_jausseran_favetto;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -27,10 +28,20 @@ public class MainActivity extends AppCompatActivity {
     // 1 : X
     // 2 : O
     private int currentPlayer = 1;
+    private int isPlayer = 0;
 
     private TextView txtPlayer;
+    private TextView txtIsPlayer;
 
     private ArrayList<Button> all_buttons = new ArrayList<>();
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference myRefNb = database.getReference("nbPlayers");
+        myRefNb.setValue(isPlayer - 1);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +49,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         txtPlayer = findViewById(R.id.player);
+        txtIsPlayer = findViewById(R.id.isPlayer);
 
         //Clear button (here for tests)
         Button btnClear = findViewById(R.id.buttonClear);
+
+        // Find how many players are connected
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference myRefNb = database.getReference("nbPlayers");
+        final DatabaseReference myRefcurr = database.getReference("currPlayer");
+
+
+
 
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,26 +93,85 @@ public class MainActivity extends AppCompatActivity {
                         //On ne fait rien si la case cliqué n'est pas vide
                         if (view.getBackground() != null)
                             return;
+                        if (currentPlayer != isPlayer)
+                            return;
 
                         FirebaseDatabase database = FirebaseDatabase.getInstance();
                         DatabaseReference myRef = database.getReference(letter + num);
                         myRef.setValue(Integer.toString(currentPlayer));
 
                         //Changement de joueur
-                        if (currentPlayer == 1) {
-                            currentPlayer = 2;
-                            txtPlayer.setText("O");
+                        if (isPlayer == 1) {
+                            myRefcurr.setValue(2);
                         } else {
-                            currentPlayer = 1;
-                            txtPlayer.setText("X");
+                            myRefcurr.setValue(1);
                         }
                     }
                 });
 
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                // Run everytime time nbPlayers value is updated
+                myRefcurr.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        String place = dataSnapshot.getKey();
+                        Integer value = dataSnapshot.getValue(Integer.class);
+                        currentPlayer = value;
+                        //Changement de joueur
+                        if (value == 1) {
+                            currentPlayer = 1;
+                            txtPlayer.setText("O");
+                        } else {
+                            currentPlayer = 2;
+                            txtPlayer.setText("X");
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.w("APPX", "Failed to read value", error.toException());
+                    }
+                });
+
                 DatabaseReference myRef = database.getReference(letter + num);
 
-                // Run everytime a firebase value is updated
+                // Run one time on nbPlayers value
+                myRefNb.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        String place = dataSnapshot.getKey();
+                        Integer value = dataSnapshot.getValue(Integer.class);
+                        myRefNb.setValue(value + 1);
+                        isPlayer = value +1;
+                        if (value + 1 == 1) {
+                            txtIsPlayer.setText("X");
+                        } else {
+                            txtIsPlayer.setText("O");
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.w("APPX", "Failed to read value", error.toException());
+                    }
+                });
+                // Run everytime time nbPlayers value is updated
+                myRefNb.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        String place = dataSnapshot.getKey();
+                        Integer value = dataSnapshot.getValue(Integer.class);
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.w("APPX", "Failed to read value", error.toException());
+                    }
+                });
+
+                // Run everytime a firebase case value is updated
                 myRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -124,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onCancelled(DatabaseError error) {
-                        Log.w("APPX", "Failed to red value", error.toException());
+                        Log.w("APPX", "Failed to read value", error.toException());
                     }
                 });
             }
