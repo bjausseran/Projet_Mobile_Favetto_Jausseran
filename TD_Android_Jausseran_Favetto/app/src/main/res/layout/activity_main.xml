@@ -1,187 +1,220 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="bottom|center">
-        <!-- Création de la grille de morpion -->
-        <!-- Premiere ligne -->
-        <Button
-            android:id="@+id/btn_a1"
-            android:layout_width="@dimen/size_button"
-            android:layout_height="@dimen/size_button" />
-
-        <Button
-            android:id="@+id/btn_b1"
-            android:layout_width="@dimen/size_button"
-            android:layout_height="@dimen/size_button"
-            android:layout_toRightOf="@+id/line1" />
-
-        <Button
-            android:id="@+id/btn_c1"
-            android:layout_width="@dimen/size_button"
-            android:layout_height="@dimen/size_button"
-            android:layout_toRightOf="@+id/line2" />
-
-        <!-- Deuxieme ligne -->
-        <Button
-            android:id="@+id/btn_a2"
-            android:layout_width="@dimen/size_button"
-            android:layout_height="@dimen/size_button"
-            android:layout_below="@+id/line3" />
-
-        <Button
-            android:id="@+id/btn_b2"
-            android:layout_width="@dimen/size_button"
-            android:layout_height="@dimen/size_button"
-            android:layout_below="@+id/line3"
-            android:layout_toRightOf="@+id/line1" />
-
-        <Button
-            android:id="@+id/btn_c2"
-            android:layout_width="@dimen/size_button"
-            android:layout_height="@dimen/size_button"
-            android:layout_below="@+id/line3"
-            android:layout_toRightOf="@+id/line2" />
-
-        <!-- Troisieme ligne -->
-        <Button
-            android:id="@+id/btn_a3"
-            android:layout_width="@dimen/size_button"
-            android:layout_height="@dimen/size_button"
-            android:layout_below="@+id/line4" />
-
-        <Button
-            android:id="@+id/btn_b3"
-            android:layout_width="@dimen/size_button"
-            android:layout_height="@dimen/size_button"
-            android:layout_below="@+id/line4"
-            android:layout_toRightOf="@+id/line1" />
-
-        <Button
-            android:id="@+id/btn_c3"
-            android:layout_width="@dimen/size_button"
-            android:layout_height="@dimen/size_button"
-            android:layout_below="@+id/line4"
-            android:layout_toRightOf="@+id/line2" />
-
-        <!-- Bordures -->
-        <View
-            android:id="@+id/line1"
-            android:layout_width="@dimen/width_line"
-            android:layout_height="0dp"
-            android:layout_alignTop="@id/btn_a1"
-            android:layout_alignBottom="@id/btn_a3"
-            android:layout_toRightOf="@id/btn_a1"
-            android:background="@android:color/black" />
-
-        <View
-            android:id="@+id/line2"
-            android:layout_width="@dimen/width_line"
-            android:layout_height="0dp"
-            android:layout_alignTop="@id/btn_a1"
-            android:layout_alignBottom="@id/btn_a3"
-            android:layout_toRightOf="@id/btn_b1"
-            android:background="@android:color/black" />
-
-        <View
-            android:id="@+id/line3"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/width_line"
-            android:layout_below="@id/btn_a1"
-            android:layout_alignLeft="@id/btn_a1"
-            android:layout_alignRight="@id/btn_c1"
-            android:background="@android:color/black" />
-
-        <View
-            android:id="@+id/line4"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/width_line"
-            android:layout_below="@id/btn_a2"
-            android:layout_alignLeft="@id/btn_a1"
-            android:layout_alignRight="@id/btn_c1"
-            android:background="@android:color/black" />
-
-    </RelativeLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/linearLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <!-- Texte permettant de savoir à qui c'est de jouer -->
-
-                <TextView
-                    android:id="@+id/turnOf"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="start|top"
-                    android:layout_weight="1"
-                    android:gravity="center|right"
-                    android:text="@string/txt_turn"
-                    android:textSize="@dimen/size_txt" />
-
-                <TextView
-                    android:id="@+id/player"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center|top"
-                    android:layout_toRightOf="@id/turnOf"
-                    android:layout_weight="2"
-                    android:gravity="center|left"
-                    android:text="X"
-
-                    android:textSize="30sp" />
-
-            </LinearLayout>
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/textView2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="3"
-                    android:gravity="right|center_vertical"
-                    android:text="Vous êtes le joueur :"
-                    android:textSize="24sp" />
-
-                <TextView
-                    android:id="@+id/isPlayer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="X"
-                    android:textSize="30sp" />
-
-                <Button
-                    android:id="@+id/buttonClear"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Clear" />
+                    android:orientation="horizontal">
+                    <!-- Texte permettant de savoir à qui c'est de jouer -->
+
+                    <TextView
+                        android:id="@+id/turnOf"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start|top"
+                        android:layout_weight="1"
+                        android:gravity="center|right"
+                        android:text="@string/txt_turn"
+                        android:textSize="@dimen/size_txt" />
+
+                    <TextView
+                        android:id="@+id/player"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center|top"
+                        android:layout_toRightOf="@id/turnOf"
+                        android:layout_weight="2.5"
+                        android:gravity="center"
+                        android:text="X"
+
+                        android:textSize="30sp" />
+
+                    <TextView
+                        android:id="@+id/inGame"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:gravity="center"
+                        android:text="En partie"
+                        android:textSize="20sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="right|center_vertical"
+                        android:text="Vous êtes le joueur : "
+                        android:textSize="24sp" />
+
+                    <TextView
+                        android:id="@+id/isPlayer"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.5"
+                        android:gravity="center"
+                        android:text="X"
+                        android:textSize="30sp" />
+
+                    <Button
+                        android:id="@+id/buttonClear"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:gravity="center"
+                        android:text="Clear" />
+                </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>
 
-    </LinearLayout>
+        <RelativeLayout
+            android:id="@+id/relativeLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="bottom|center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+            app:layout_constraintVertical_bias="0.120000005">
+            <!-- Création de la grille de morpion -->
+            <!-- Premiere ligne -->
+            <Button
+                android:id="@+id/btn_a1"
+                android:layout_width="@dimen/size_button"
+                android:layout_height="@dimen/size_button" />
+
+            <Button
+                android:id="@+id/btn_b1"
+                android:layout_width="@dimen/size_button"
+                android:layout_height="@dimen/size_button"
+                android:layout_toRightOf="@+id/line1" />
+
+            <Button
+                android:id="@+id/btn_c1"
+                android:layout_width="@dimen/size_button"
+                android:layout_height="@dimen/size_button"
+                android:layout_toRightOf="@+id/line2" />
+
+            <!-- Deuxieme ligne -->
+            <Button
+                android:id="@+id/btn_a2"
+                android:layout_width="@dimen/size_button"
+                android:layout_height="@dimen/size_button"
+                android:layout_below="@+id/line3" />
+
+            <Button
+                android:id="@+id/btn_b2"
+                android:layout_width="@dimen/size_button"
+                android:layout_height="@dimen/size_button"
+                android:layout_below="@+id/line3"
+                android:layout_toRightOf="@+id/line1" />
+
+            <Button
+                android:id="@+id/btn_c2"
+                android:layout_width="@dimen/size_button"
+                android:layout_height="@dimen/size_button"
+                android:layout_below="@+id/line3"
+                android:layout_toRightOf="@+id/line2" />
+
+            <!-- Troisieme ligne -->
+            <Button
+                android:id="@+id/btn_a3"
+                android:layout_width="@dimen/size_button"
+                android:layout_height="@dimen/size_button"
+                android:layout_below="@+id/line4" />
+
+            <Button
+                android:id="@+id/btn_b3"
+                android:layout_width="@dimen/size_button"
+                android:layout_height="@dimen/size_button"
+                android:layout_below="@+id/line4"
+                android:layout_toRightOf="@+id/line1" />
+
+            <Button
+                android:id="@+id/btn_c3"
+                android:layout_width="@dimen/size_button"
+                android:layout_height="@dimen/size_button"
+                android:layout_below="@+id/line4"
+                android:layout_toRightOf="@+id/line2" />
+
+            <!-- Bordures -->
+            <View
+                android:id="@+id/line1"
+                android:layout_width="@dimen/width_line"
+                android:layout_height="0dp"
+                android:layout_alignTop="@id/btn_a1"
+                android:layout_alignBottom="@id/btn_a3"
+                android:layout_toRightOf="@id/btn_a1"
+                android:background="@android:color/black" />
+
+            <View
+                android:id="@+id/line2"
+                android:layout_width="@dimen/width_line"
+                android:layout_height="0dp"
+                android:layout_alignTop="@id/btn_a1"
+                android:layout_alignBottom="@id/btn_a3"
+                android:layout_toRightOf="@id/btn_b1"
+                android:background="@android:color/black" />
+
+            <View
+                android:id="@+id/line3"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/width_line"
+                android:layout_below="@id/btn_a1"
+                android:layout_alignLeft="@id/btn_a1"
+                android:layout_alignRight="@id/btn_c1"
+                android:background="@android:color/black" />
+
+            <View
+                android:id="@+id/line4"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/width_line"
+                android:layout_below="@id/btn_a2"
+                android:layout_alignLeft="@id/btn_a1"
+                android:layout_alignRight="@id/btn_c1"
+                android:background="@android:color/black" />
+
+        </RelativeLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>
