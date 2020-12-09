@@ -1,4 +1,0 @@
-<resources>
-    <string name="app_name">Morpion</string>
-    <string name="txt_turn">"Au tour du joueur : "</string>
-</resources>
