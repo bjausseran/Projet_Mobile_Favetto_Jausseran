@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import android.content.DialogInterface;
+import androidx.appcompat.app.AlertDialog;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -156,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
                         //Changement de joueur
                         if (isPlayer == 1) myRefcurr.setValue(2);
                         else myRefcurr.setValue(1);
+
                     }
                 });
 
@@ -171,6 +174,12 @@ public class MainActivity extends AppCompatActivity {
                         int id = getResources().getIdentifier("btn_" + place, "id", getPackageName());
                         Button but = findViewById(id);
 
+                        //Convert the letter to an id
+                        int boardLetter = -1;
+                        for (int i = 0; i < letters.length; i++) {
+                            if (letters[i].equals(place.substring(0, 1))) boardLetter = i;
+                        }
+
                         //Affiche le pion
                         Drawable drawableJoueur;
                         if (value == "1") {
@@ -182,13 +191,19 @@ public class MainActivity extends AppCompatActivity {
                             but.setBackgroundDrawable(drawableJoueur); // Utiliser view.setBackground(drawableJoueur); si API >= 16
                         }
                         else but.setBackgroundDrawable(null);
-                    //Convert the letter to an id
-                        int boardLetter = -1;
-                        for (int i = 0; i < letters.length; i++) {
-                            if (letters[i] == place.substring(0, 1)) boardLetter = i;
-                        }
+
+                        int parse = Integer.parseInt(place.substring(1, 2));
                     //Update Board
-                        if (boardLetter != -1) boardGame[boardLetter][Integer.parseInt(place.substring(1, 2))] = currentPlayer;
+                        if (boardLetter != -1
+                                && Integer.parseInt(place.substring(1, 2)) < 4
+                                && Integer.parseInt(place.substring(1, 2)) > 0
+                                && !value.equals("") && (currentPlayer == 1 || currentPlayer == 2))
+                        {
+                            boardGame[boardLetter][Integer.parseInt(place.substring(1, 2)) - 1] = currentPlayer;
+                            int res = checkWinner();
+                            displayAlertDialog(res);
+                        }
+
                     }
 
                     @Override
@@ -234,6 +249,95 @@ public class MainActivity extends AppCompatActivity {
             hasStop = false;
         }
     }
+    //---------------------------CHECK WINNER-------------------------//
+    // 0 : partie non fini
+    // 1 : X
+    // 2 : O
+    // 3 : egalite
+    private int checkWinner(){
+
+        // on regarde si il y a un gagnant sur les colonnes
+        for (int col = 0; col <= 2; col++) {
+            if (boardGame[col][0] != 0 && boardGame[col][0] == boardGame[col][1] && boardGame[col][0] == boardGame[col][2])
+                return boardGame[col][0];
+        }
+
+        // on regarde si il y a un gagnant sur les lignes
+        for (int line = 0; line <= 2; line++){
+            if (boardGame[0][line] != 0 && boardGame[0][line] == boardGame[1][line] && boardGame[0][line] == boardGame[2][line])
+                return boardGame[0][line];
+        }
+
+        // on regarde si il y a un gagnant sur la diagonale haut/gauche -> bas/droit
+        if (boardGame[0][0] != 0 && boardGame[0][0] == boardGame[1][1] && boardGame[0][0] == boardGame[2][2])
+            return boardGame[0][0];
+
+        // on regarde si il y a un gagnant sur la diagonale haut/droite -> bas/gauche
+        if (boardGame[2][0] != 0 && boardGame[2][0] == boardGame[1][1] && boardGame[2][0] == boardGame[0][2])
+            return boardGame[2][0];
+
+        // Egalité
+        boolean isFull = true;
+        for (int col = 0; col <= 2; col++) {
+            for (int line = 0; line <= 2; line++){
+                if (boardGame[col][line] == 0) { // case
+                    isFull = false;
+                    break;
+                }
+            }
+            if (!isFull)
+                break;
+        }
+        if (isFull)
+            return 3;
+
+        // Partie non fini
+        return 0;
+    }
+
+    // 0 : partie non fini
+    // 1 : X
+    // 2 : O
+    // 3 : egalite
+    private void displayAlertDialog(int res){
+        if (res == 0) // partie non termine
+            return;
+
+        String strToDisplay = "";
+        if (res == 1)
+            strToDisplay = "Les X ont gagnées !";
+        if (res == 2)
+            strToDisplay = "Les O ont gagnés !";
+        if (res == 3)
+            strToDisplay = "Egalité !";
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Fin de la partie");
+        alertDialog.setMessage(strToDisplay);
+
+        alertDialog.setNeutralButton("Recommencer", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                resetGame();
+            }
+        });
+        alertDialog.setCancelable(false);
+        alertDialog.show();
+
+    }
+
+    private void resetGame(){
+
+        for (int col = 0; col <= 2; col++) {
+            for (int line = 0; line <= 2; line++) {
+                boardGame[col][line] = 0;
+            }
+        }
+
+        ClearTable();
+    }
+
+
 
     // Vide la table Firebase
     private void ClearTable()
