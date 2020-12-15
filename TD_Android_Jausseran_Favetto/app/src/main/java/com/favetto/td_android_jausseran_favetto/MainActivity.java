@@ -182,11 +182,11 @@ public class MainActivity extends AppCompatActivity {
 
                         //Affiche le pion
                         Drawable drawableJoueur;
-                        if (value == "1") {
+                        if (value.equals("1")) {
                             drawableJoueur = ContextCompat.getDrawable(getApplicationContext(), R.drawable.x);
                             but.setBackgroundDrawable(drawableJoueur); // Utiliser view.setBackground(drawableJoueur); si API >= 16
                         }
-                        else if (value == "2") {
+                        else if (value.equals("2")) {
                             drawableJoueur = ContextCompat.getDrawable(getApplicationContext(), R.drawable.o);
                             but.setBackgroundDrawable(drawableJoueur); // Utiliser view.setBackground(drawableJoueur); si API >= 16
                         }
