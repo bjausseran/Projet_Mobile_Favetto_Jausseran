@@ -8,4 +8,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="Button_menu" parent="AppTheme">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:textSize">@dimen/size_txt_btn</item>
+        <item name="android:layout_marginBottom">@dimen/margin_bottom_menu</item>
+    </style>
+
 </resources>
