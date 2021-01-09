@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setBackBtn();
 
         txtCurrPlayer = findViewById(R.id.player);
         txtIsPlayer = findViewById(R.id.isPlayer);
@@ -378,6 +381,17 @@ public class MainActivity extends AppCompatActivity {
             txtIsPlayer.setText("NONE");
             txtIsPlayer.setTextSize(10);
         }
+    }
+
+    private void setBackBtn()
+    {
+        Button launchBtn = (Button) findViewById(R.id.btn_back);
+        launchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, MenuActivity.class));
+            }
+        });
     }
 }
 
