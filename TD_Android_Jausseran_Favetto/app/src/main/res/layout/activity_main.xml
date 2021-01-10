@@ -28,11 +28,17 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="100dp"
+                    android:src="@drawable/tictactoe_menu" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="horizontal">
+
                     <!-- Texte permettant de savoir à qui c'est de jouer -->
 
                     <TextView
@@ -61,6 +67,8 @@
                         android:id="@+id/inGame"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginRight="10dp"
                         android:layout_weight="2"
                         android:gravity="center"
                         android:text="En partie"
@@ -96,9 +104,13 @@
                         android:id="@+id/buttonClear"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginRight="10dp"
                         android:layout_weight="2"
+                        android:background="@color/colorPrimary"
                         android:gravity="center"
-                        android:text="Clear" />
+                        android:text="Clear"
+                        android:textColor="@android:color/white" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -109,6 +121,7 @@
             android:id="@+id/relativeLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:gravity="bottom|center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -218,6 +231,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="0dp"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -227,10 +241,12 @@
 
             <Button
                 android:id="@+id/btn_back"
-                android:layout_width="wrap_content"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Quitter"
+                android:background="@color/colorPrimary"
+                android:text="Retour"
+                android:textColor="@android:color/white"
                 tools:text="Quitter" />
         </LinearLayout>
 
