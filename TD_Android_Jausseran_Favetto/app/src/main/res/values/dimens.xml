@@ -7,7 +7,12 @@
     <dimen name="margin_bottom_menu">20dp</dimen>
     <dimen name="size_txt_btn">40sp</dimen>
     <dimen name="size_img">100dp</dimen>
+
     <dimen name="margin_left_btn_clear">15dp</dimen>
     <dimen name="margin_top_grille">10dp</dimen>
     <dimen name="margin_top_btn_return">15dp</dimen>
+    <dimen name="size_txt_rules">20sp</dimen>
+    <dimen name="margin_rules">20dp</dimen>
+    <dimen name="margin_bottom_rules">10dp</dimen>
+    <dimen name="width_btn_rules">150dp</dimen>
 </resources>

@@ -18,34 +18,34 @@
         android:layout_gravity="center"
         android:text="@string/txt_titreRegles"
         android:textSize="@dimen/size_txt_btn"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="@dimen/margin_bottom_rules"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/margin_rules"
         android:text="@string/txt_regles_1"
-        android:textSize="20sp" />
+        android:textSize="@dimen/size_txt_rules" />
 
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/margin_rules"
         android:text="@string/txt_regles_2"
-        android:textSize="20sp" />
+        android:textSize="@dimen/size_txt_rules" />
 
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="@dimen/margin_rules"
         android:text="@string/txt_regles_3"
-        android:textSize="20sp" />
+        android:textSize="@dimen/size_txt_rules" />
 
     <Button
         android:id="@+id/btn_back_rules"
-        android:layout_width="150dp"
+        android:layout_width="@dimen/width_btn_rules"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="@color/colorPrimary"
