@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -25,9 +26,12 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+
     String[] letters =new String[]{"a","b","c"};
     private int boardGame[][] = new int[3][3];
-    private boolean hasStop = false;
+    private Button buttons[][] = new Button[3][3];
+    private boolean hasRotate = false;
+    private Context context;
 
     // Joueur actuel    1 : X
     //                  2 : O
@@ -49,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         setBackBtn();
+
+        this.context = this;
+        if(hasRotate) hasRotate = false;
 
         txtCurrPlayer = findViewById(R.id.player);
         txtIsPlayer = findViewById(R.id.isPlayer);
@@ -83,23 +90,26 @@ public class MainActivity extends AppCompatActivity {
         });
     //____________________________________________________________________________//
     //_________________________________NOMBRE DE JOUEUR_________________________//
-        // Tourne une fois sur nbPLayers, pour récupérer le numero du joueurs
-        myRefNb.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Integer value = dataSnapshot.getValue(Integer.class);
-                myRefNb.setValue(value + 1);
-                isPlayer = value + 1;
-                nbPlayer = value + 1;
+        if (savedInstanceState == null) {
+            // Tourne une fois sur nbPLayers, pour récupérer le numero du joueurs
+            myRefNb.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Integer value = dataSnapshot.getValue(Integer.class);
+                    myRefNb.setValue(value + 1);
+                    isPlayer = value + 1;
+                    nbPlayer = value + 1;
 
-                CheckEnoughPlayer();
-                SetPlayerText(value + 1);
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.w("APPX", "Failed to read value", error.toException());
-            }
-        });
+                    CheckEnoughPlayer();
+                    SetPlayerText(value + 1);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.w("APPX", "Failed to read value", error.toException());
+                }
+            });
+        }
 
         // Tourne à chaque fois que le valeur nbPlayers change dans Firebase
         myRefNb.addValueEventListener(new ValueEventListener() {
@@ -143,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Button button = findViewById(id);
                 //bt.setBackground(null); //Si API >= 16
+
                 button.setBackground(null);
 
         //------------------------------ON CLICK LISTENER-------------------------//
@@ -204,9 +215,12 @@ public class MainActivity extends AppCompatActivity {
                         {
                             boardGame[boardLetter][Integer.parseInt(place.substring(1, 2)) - 1] = currentPlayer;
                             int res = checkWinner();
-                            displayAlertDialog(res);
-                        }
+                            if (res != 0) {
 
+                            AlertBuilder.displayEndGameDialog(res, context);
+                            resetGame();
+                            }
+                        }
                     }
 
                     @Override
@@ -218,40 +232,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //OnPause retire le joueur de decompte Firebase
-    //   Si c'est le derneir joueur : clear table + reset first player
-    @Override
-    protected void onPause() {
-        super.onPause();
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference myRefNb = database.getReference("nbPlayers");
-        myRefNb.setValue(nbPlayer - 1);
-        if (nbPlayer == 1)
-        {
-            final DatabaseReference myRefCurr = database.getReference("currPlayer");
-            myRefCurr.setValue(1);
-            ClearTable();
-        }
-        hasStop = true;
-    }
-    //OnPause retire le joueur de decompte Firebase
-    //   Si c'est le derneir joueur : clear table + reset first player
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (hasStop) {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            final DatabaseReference myRefNb = database.getReference("nbPlayers");
-            myRefNb.setValue(nbPlayer + 1);
-            isPlayer = nbPlayer +1;
-            if (nbPlayer >= 2) {
-                final DatabaseReference myRefCurr = database.getReference("currPlayer");
-                myRefCurr.setValue(1);
-                ClearTable();
-            }
-            hasStop = false;
-        }
-    }
     //---------------------------CHECK WINNER-------------------------//
     // 0 : partie non fini
     // 1 : X
@@ -302,32 +282,6 @@ public class MainActivity extends AppCompatActivity {
     // 1 : X
     // 2 : O
     // 3 : egalite
-    private void displayAlertDialog(int res){
-        if (res == 0) // partie non termine
-            return;
-
-        String strToDisplay = "";
-        if (res == 1)
-            strToDisplay = "Les X ont gagnées !";
-        if (res == 2)
-            strToDisplay = "Les O ont gagnés !";
-        if (res == 3)
-            strToDisplay = "Egalité !";
-
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setTitle("Fin de la partie");
-        alertDialog.setMessage(strToDisplay);
-
-        alertDialog.setNeutralButton("Recommencer", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                resetGame();
-            }
-        });
-        alertDialog.setCancelable(false);
-        alertDialog.show();
-
-    }
 
     private void resetGame(){
 
@@ -336,12 +290,8 @@ public class MainActivity extends AppCompatActivity {
                 boardGame[col][line] = 0;
             }
         }
-
         ClearTable();
     }
-
-
-
     // Vide la table Firebase
     private void ClearTable()
     {
@@ -383,15 +333,88 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    //OnPause retire le joueur de decompte Firebase
+    //   Si c'est le derneir joueur : clear table + reset first player
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (isFinishing()) {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            final DatabaseReference myRefNb = database.getReference("nbPlayers");
+            myRefNb.setValue(nbPlayer - 1);
+            final DatabaseReference myRefCurr = database.getReference("currPlayer");
+            myRefCurr.setValue(1);
+        } else {
+            hasRotate = true;
+            AlertBuilder.displayConfirmExitAlert(context, nbPlayer);
+        }
+    }
+
     private void setBackBtn()
     {
         Button launchBtn = (Button) findViewById(R.id.btn_back);
         launchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, MenuActivity.class));
-            }
+            public void onClick(View view) {AlertBuilder.displayConfirmExitAlert(context, nbPlayer);}
         });
+    }
+
+    private void drawGridValue()
+    {
+        for (int i = 1; i < 4; i++) {
+            for (int j = 0; j < letters.length; j++) {
+
+                int id = getResources().getIdentifier("btn_" + letters[j] + Integer.toString(i), "id", getPackageName());
+                Button but = findViewById(id);
+
+                //Affiche le pion
+                Drawable drawableJoueur;
+                if (boardGame[j][i-1] == 1) {
+                    drawableJoueur = ContextCompat.getDrawable(getApplicationContext(), R.drawable.x);
+                    but.setBackgroundDrawable(drawableJoueur); // Utiliser view.setBackground(drawableJoueur); si API >= 16
+                }
+                else if (boardGame[j][i-1] == 2) {
+                    drawableJoueur = ContextCompat.getDrawable(getApplicationContext(), R.drawable.o);
+                    but.setBackgroundDrawable(drawableJoueur); // Utiliser view.setBackground(drawableJoueur); si API >= 16
+                }
+                else but.setBackgroundDrawable(null);
+
+            }
+        }
+    }
+    @Override
+    public void onBackPressed() {
+        AlertBuilder.displayConfirmExitAlert(context, nbPlayer);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putIntArray("boardA", boardGame[0]);
+        savedInstanceState.putIntArray("boardB", boardGame[1]);
+        savedInstanceState.putIntArray("boardC", boardGame[2]);
+        savedInstanceState.putInt("curr", currentPlayer);
+        savedInstanceState.putInt("nbPlayer", nbPlayer);
+        savedInstanceState.putInt("isPlayer", isPlayer);
+        savedInstanceState.putBoolean("hasRotate", hasRotate);
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // Restore UI state from the savedInstanceState.
+        // This bundle has also been passed to onCreate.
+        boardGame[0] = savedInstanceState.getIntArray("boardA");
+        boardGame[1] = savedInstanceState.getIntArray("boardB");
+        boardGame[2] = savedInstanceState.getIntArray("boardC");
+        currentPlayer = savedInstanceState.getInt("curr");
+        nbPlayer = savedInstanceState.getInt("nbPlayer");
+        isPlayer = savedInstanceState.getInt("isPlayer");
+        hasRotate = savedInstanceState.getBoolean("hasRotate");
+        drawGridValue();
+
     }
 }
 

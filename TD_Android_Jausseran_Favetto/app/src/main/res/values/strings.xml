@@ -1,4 +1,9 @@
 <resources>
-    <string name="app_name">Morpion</string>
-    <string name="txt_turn">"Au tour du joueur : "</string>
-</resources>
+    <string name="app_name">TicTacToe</string>
+<string name="txt_turn">Au tour du joueur : </string>
+<string name="txt_titreRegles">Règles</string>
+<string name="txt_regles_1">Deux joueurs posent tour à tour un rond, pour l\'un, une croix, pour l\'autre, dans une grille de 3 cases par 3.</string>
+<string name="txt_regles_2">Le but du jeu est d\'obtenir un alignement (en ligne, colonne ou diagonale) de ces trois signes.</string>
+<string name="txt_regles_3">Les signes une fois posés ne sont plus déplaçables.</string>
+
+    </resources>
