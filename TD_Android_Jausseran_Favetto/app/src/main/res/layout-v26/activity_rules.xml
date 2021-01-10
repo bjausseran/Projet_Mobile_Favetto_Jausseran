@@ -24,6 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
+        android:justificationMode="inter_word"
         android:text="@string/txt_regles_1"
         android:textSize="20sp" />
 
@@ -32,6 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
+        android:justificationMode="inter_word"
         android:text="@string/txt_regles_2"
         android:textSize="20sp" />
 
@@ -40,6 +42,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
+        android:justificationMode="inter_word"
         android:text="@string/txt_regles_3"
         android:textSize="20sp" />
 

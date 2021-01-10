@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,8 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import android.content.DialogInterface;
-import androidx.appcompat.app.AlertDialog;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -22,36 +19,36 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-
 public class MainActivity extends AppCompatActivity {
 
-
+    // création de la grille
     String[] letters =new String[]{"a","b","c"};
-    private int boardGame[][] = new int[3][3];
-    private Button buttons[][] = new Button[3][3];
+    private final int[][] boardGame = new int[3][3];
+
     private boolean hasRotate = false;
     private Context context;
 
     // Joueur actuel    1 : X
     //                  2 : O
     private int currentPlayer = 1;
-    // Numéro du joueurs
+    // Numéro du joueurs (1 ou 2)
     private int isPlayer = 0;
-    // Nombre de joueurs en ligne
+    // Nombre de joueurs en ligne (max 2)
     private int nbPlayer = 0;
 
+    // X ou O
     private TextView txtCurrPlayer;
     private TextView txtIsPlayer;
+    // "En partie" ou "En attente"
     private TextView txtInGame;
 
-    private ArrayList<Button> all_buttons = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialisation du bouton retour
         setBackBtn();
 
         this.context = this;
@@ -61,20 +58,20 @@ public class MainActivity extends AppCompatActivity {
         txtIsPlayer = findViewById(R.id.isPlayer);
         txtInGame = findViewById(R.id.inGame);
 
-        // Find how many players are connected
+        // Récupère le nombre de joueurs connectés
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference myRefNb = database.getReference("nbPlayers");
         final DatabaseReference myRefcurr = database.getReference("currPlayer");
 
+    //____________________________________________________________________________//
+    //_______________________________ JOUEUR ACTUEL ______________________________//
+    // ____________________________________________________________________________//
 
-    //_________________________________JOUEUR ACTUEL_________________________//
         // Recupère le joueur actuel à chaque update de currPlayer dans Firebase
         myRefcurr.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String place = dataSnapshot.getKey();
-                Integer value = dataSnapshot.getValue(Integer.class);
-                currentPlayer = value;
+                currentPlayer = dataSnapshot.getValue(Integer.class);
                 //Changement de joueur
                 if (currentPlayer == 1) {
                     txtCurrPlayer.setText("X");
@@ -88,8 +85,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.w("APPX", "Failed to read value", error.toException());
             }
         });
+
     //____________________________________________________________________________//
-    //_________________________________NOMBRE DE JOUEUR_________________________//
+    //_____________________________ NOMBRE DE JOUEURS _____________________________//
+    //____________________________________________________________________________//
+
         if (savedInstanceState == null) {
             // Tourne une fois sur nbPLayers, pour récupérer le numero du joueurs
             myRefNb.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -100,10 +100,9 @@ public class MainActivity extends AppCompatActivity {
                     isPlayer = value + 1;
                     nbPlayer = value + 1;
 
-                    CheckEnoughPlayer();
-                    SetPlayerText(value + 1);
+                    Tools.CheckEnoughPlayer(nbPlayer, isPlayer, letters, txtInGame);
+                    Tools.SetPlayerText(txtIsPlayer, value + 1);
                 }
-
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
                     Log.w("APPX", "Failed to read value", error.toException());
@@ -115,13 +114,12 @@ public class MainActivity extends AppCompatActivity {
         myRefNb.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Integer value = dataSnapshot.getValue(Integer.class);
-                nbPlayer = value;
-                CheckEnoughPlayer();
+                nbPlayer = dataSnapshot.getValue(Integer.class);
+                Tools.CheckEnoughPlayer(nbPlayer, isPlayer, letters, txtInGame);
                 //Si    numero joueur > nombre joueurs
                 //      numero joueur = nombre joueurs = dernier joueur
-                if (isPlayer > isPlayer) {
-                    SetPlayerText(isPlayer);
+                if (isPlayer > nbPlayer) {
+                    Tools.SetPlayerText(txtIsPlayer, isPlayer);
                 }
             }
             @Override
@@ -129,20 +127,25 @@ public class MainActivity extends AppCompatActivity {
                 Log.w("APPX", "Failed to read value", error.toException());
             }
         });
+
     //____________________________________________________________________________//
-    //___________________________________FOR TEST_________________________________//
-        //Clear button (here for tests)
+    //_____________________________  POUR TESTS  _________________________________//
+    //____________________________________________________________________________//
+
+        //Clear button, permet de nettoyer la grille pour faire différents tests
         Button btnClear = findViewById(R.id.buttonClear);
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ClearTable();
+                Tools.ClearTable(letters);
             }
         });
 
     //____________________________________________________________________________//
-    //______________________________GRID BUTTON SETTER____________________________//
-        // Set all button of the grid
+    //________________ INITIALISATION DES BOUTONS DE LA GRILLE ___________________//
+    //____________________________________________________________________________//
+
+        // Initialise tous les boutons de la grille
         for (int i = 1; i < 4; i++) {
             for (int j = 0; j < 3; j++) {
                 int id = getResources().getIdentifier("btn_" + letters[j] + i, "id", getPackageName());
@@ -157,11 +160,12 @@ public class MainActivity extends AppCompatActivity {
                 button.setBackground(null);
 
         //------------------------------ON CLICK LISTENER-------------------------//
+
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
 
-                        //On ne fait rien si la case cliqué n'est pas vide
+                        //On ne fait rien si la case cliquée n'est pas vide
                         if (view.getBackground() != null || currentPlayer != isPlayer || nbPlayer < 2)
                             return;
 
@@ -177,24 +181,25 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         //---------------------------FIREBASE READING-------------------------//
+
                 DatabaseReference myRef = database.getReference(letter + num);
-                // Run everytime a firebase case is updated
+                // Exécuté chaque fois qu'une case firebase est mise à jour
                 myRef.addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         String place = dataSnapshot.getKey();
                         String value = dataSnapshot.getValue(String.class);
                         Log.d("APPX", "Value is: " + value);
                         int id = getResources().getIdentifier("btn_" + place, "id", getPackageName());
                         Button but = findViewById(id);
 
-                        //Convert the letter to an id
+                        // converti la lettre en un identifiant
                         int boardLetter = -1;
                         for (int i = 0; i < letters.length; i++) {
                             if (letters[i].equals(place.substring(0, 1))) boardLetter = i;
                         }
 
-                        //Affiche le pion
+                        // Affiche le pion (X ou O)
                         Drawable drawableJoueur;
                         if (value.equals("1")) {
                             drawableJoueur = ContextCompat.getDrawable(getApplicationContext(), R.drawable.x);
@@ -206,25 +211,24 @@ public class MainActivity extends AppCompatActivity {
                         }
                         else but.setBackgroundDrawable(null);
 
-                        int parse = Integer.parseInt(place.substring(1, 2));
-                    //Update Board
+                    // Met à jour le plateau
                         if (boardLetter != -1
                                 && Integer.parseInt(place.substring(1, 2)) < 4
                                 && Integer.parseInt(place.substring(1, 2)) > 0
                                 && !value.equals("") && (currentPlayer == 1 || currentPlayer == 2))
                         {
                             boardGame[boardLetter][Integer.parseInt(place.substring(1, 2)) - 1] = currentPlayer;
-                            int res = checkWinner();
+                            int res = Tools.checkWinner(boardGame);
                             if (res != 0) {
 
                             AlertBuilder.displayEndGameDialog(res, context);
-                            resetGame();
+                            Tools.resetGame(boardGame, letters);
                             }
                         }
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError error) {
+                    public void onCancelled(@NonNull DatabaseError error) {
                         Log.w("APPX", "Failed to read value", error.toException());
                     }
                 });
@@ -232,141 +236,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //---------------------------CHECK WINNER-------------------------//
-    // 0 : partie non fini
-    // 1 : X
-    // 2 : O
-    // 3 : egalite
-    private int checkWinner(){
-
-        // on regarde si il y a un gagnant sur les colonnes
-        for (int col = 0; col <= 2; col++) {
-            if (boardGame[col][0] != 0 && boardGame[col][0] == boardGame[col][1] && boardGame[col][0] == boardGame[col][2])
-                return boardGame[col][0];
-        }
-
-        // on regarde si il y a un gagnant sur les lignes
-        for (int line = 0; line <= 2; line++){
-            if (boardGame[0][line] != 0 && boardGame[0][line] == boardGame[1][line] && boardGame[0][line] == boardGame[2][line])
-                return boardGame[0][line];
-        }
-
-        // on regarde si il y a un gagnant sur la diagonale haut/gauche -> bas/droit
-        if (boardGame[0][0] != 0 && boardGame[0][0] == boardGame[1][1] && boardGame[0][0] == boardGame[2][2])
-            return boardGame[0][0];
-
-        // on regarde si il y a un gagnant sur la diagonale haut/droite -> bas/gauche
-        if (boardGame[2][0] != 0 && boardGame[2][0] == boardGame[1][1] && boardGame[2][0] == boardGame[0][2])
-            return boardGame[2][0];
-
-        // Egalité
-        boolean isFull = true;
-        for (int col = 0; col <= 2; col++) {
-            for (int line = 0; line <= 2; line++){
-                if (boardGame[col][line] == 0) { // case
-                    isFull = false;
-                    break;
-                }
-            }
-            if (!isFull)
-                break;
-        }
-        if (isFull)
-            return 3;
-
-        // Partie non fini
-        return 0;
-    }
-
-    // 0 : partie non fini
-    // 1 : X
-    // 2 : O
-    // 3 : egalite
-
-    private void resetGame(){
-
-        for (int col = 0; col <= 2; col++) {
-            for (int line = 0; line <= 2; line++) {
-                boardGame[col][line] = 0;
-            }
-        }
-        ClearTable();
-    }
-    // Vide la table Firebase
-    private void ClearTable()
-    {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        for (int i = 1; i < 4; i++) {
-            for (int j = 0; j < 3; j++) {
-                DatabaseReference myRef = database.getReference(letters[j] + i);
-                myRef.setValue("");
-            }
-        }
-    }
-
-    // Verifie s'il y a assez de joueur et prépare la partie
-    private void CheckEnoughPlayer()
-    {
-        if (nbPlayer >= 2)
-        {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            final DatabaseReference myRefCurr = database.getReference("currPlayer");
-            myRefCurr.setValue(1);
-            ClearTable();
-
-            if (isPlayer <= 2) txtInGame.setText("En partie");
-            else txtInGame.setText("En attente");
-        }
-        else txtInGame.setText("En attente");
-    }
-
-    private void SetPlayerText(int value) {
-        if (value == 1) {
-            txtIsPlayer.setText("X");
-            txtIsPlayer.setTextSize(30);
-        }else if(value == 2){
-            txtIsPlayer.setText("O");
-            txtIsPlayer.setTextSize(30);
-        } else {
-            txtIsPlayer.setText("NONE");
-            txtIsPlayer.setTextSize(10);
-        }
-    }
-
-
-    //OnPause retire le joueur de decompte Firebase
-    //   Si c'est le derneir joueur : clear table + reset first player
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (isFinishing()) {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            final DatabaseReference myRefNb = database.getReference("nbPlayers");
-            myRefNb.setValue(nbPlayer - 1);
-            final DatabaseReference myRefCurr = database.getReference("currPlayer");
-            myRefCurr.setValue(1);
-        } else {
-            hasRotate = true;
-            AlertBuilder.displayConfirmExitAlert(context, nbPlayer);
-        }
-    }
-
-    private void setBackBtn()
-    {
-        Button launchBtn = (Button) findViewById(R.id.btn_back);
-        launchBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {AlertBuilder.displayConfirmExitAlert(context, nbPlayer);}
-        });
-    }
-
+    // Fonction permettant d'initialiser la grille
     private void drawGridValue()
     {
         for (int i = 1; i < 4; i++) {
             for (int j = 0; j < letters.length; j++) {
 
-                int id = getResources().getIdentifier("btn_" + letters[j] + Integer.toString(i), "id", getPackageName());
+                int id = getResources().getIdentifier("btn_" + letters[j] + i, "id", getPackageName());
                 Button but = findViewById(id);
 
                 //Affiche le pion
@@ -384,10 +260,43 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    // Initialisation des différents boutons
+
+    //OnDestroy retire le joueur de decompte Firebase
+    //   Si c'est le dernier joueur : clear table + reset first player
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (isFinishing()) {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            final DatabaseReference myRefNb = database.getReference("nbPlayers");
+            myRefNb.setValue(nbPlayer - 1);
+            final DatabaseReference myRefCurr = database.getReference("currPlayer");
+            myRefCurr.setValue(1);
+        } else {
+            hasRotate = true;
+            AlertBuilder.displayConfirmReturnGameAlert(context, nbPlayer);
+        }
+    }
+
+    // Bouton permettant de revenir au menu
+    private void setBackBtn()
+    {
+        Button launchBtn = (Button) findViewById(R.id.btn_back);
+        launchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {AlertBuilder.displayConfirmReturnGameAlert(context, nbPlayer);}
+        });
+    }
+
+    // Action quand on clique sur le bouton retour
     @Override
     public void onBackPressed() {
-        AlertBuilder.displayConfirmExitAlert(context, nbPlayer);
+        AlertBuilder.displayConfirmReturnGameAlert(context, nbPlayer);
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -402,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
+    public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         // Restore UI state from the savedInstanceState.
         // This bundle has also been passed to onCreate.

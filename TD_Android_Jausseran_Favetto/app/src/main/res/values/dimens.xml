@@ -6,4 +6,8 @@
     <dimen name="size_player">50sp</dimen>
     <dimen name="margin_bottom_menu">20dp</dimen>
     <dimen name="size_txt_btn">40sp</dimen>
+    <dimen name="size_img">100dp</dimen>
+    <dimen name="margin_left_btn_clear">15dp</dimen>
+    <dimen name="margin_top_grille">10dp</dimen>
+    <dimen name="margin_top_btn_return">15dp</dimen>
 </resources>

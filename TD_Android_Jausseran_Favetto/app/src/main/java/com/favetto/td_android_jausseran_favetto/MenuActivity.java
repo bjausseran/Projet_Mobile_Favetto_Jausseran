@@ -1,11 +1,9 @@
 package com.favetto.td_android_jausseran_favetto;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,10 +18,14 @@ import com.google.firebase.database.ValueEventListener;
 
 public class MenuActivity extends AppCompatActivity {
 
-    // Nombre de joueurs en ligne
+    // Nombre de joueurs présents sur le menu
     private int nbWaiting = 0;
-    private int nbPlayers = 0;
+    // Nombre de joueurs en jeu
+    public int nbPlayers = 0;
+
+    // Permet de charger le layout du jeu
     private Intent gameActivity;
+    // Permet de charger le layout des règles
     private Intent rulesActivity;
     private Context context;
 
@@ -32,26 +34,31 @@ public class MenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
         this.context = this;
+
+        // Initialisation des intent pour l'affichage des différents layout
         gameActivity = new Intent(MenuActivity.this, MainActivity.class);
         rulesActivity = new Intent(getApplicationContext(), RulesActivity.class);
 
+        // Initialisation des boutons
         setLaunchBtn();
         setRulesBtn();
         setQuitBtn();
 
-
-        // Find how many players are connected
+        // Trouver combien de joueurs sont connectés
         FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        //____________________________________________________________________________//
+        //____________________  NOMBRE DE JOUEURS DANS LE MENU _______________________//
+        //____________________________________________________________________________//
+
         final DatabaseReference myRefNb = database.getReference("nbWaiting");
-        //_________________________________NOMBRE DE JOUEUR_________________________//
-        // Tourne une fois sur nbWaiting, pour récupérer le numero du joueurs
+        // Est exécuté une fois sur nbWaiting, pour récupérer le nombre de joueurs en attente
         myRefNb.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Integer value = dataSnapshot.getValue(Integer.class);
                 myRefNb.setValue(value + 1);
                 nbWaiting = value + 1;
-
             }
 
             @Override
@@ -60,12 +67,11 @@ public class MenuActivity extends AppCompatActivity {
             }
         });
 
-        // Tourne à chaque fois que le valeur nbWaiting change dans Firebase
+        // Est exécuté à chaque fois que la valeur nbWaiting change dans Firebase
         myRefNb.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Integer value = dataSnapshot.getValue(Integer.class);
-                nbWaiting = value;
+                nbWaiting = dataSnapshot.getValue(Integer.class);
             }
 
             @Override
@@ -73,10 +79,13 @@ public class MenuActivity extends AppCompatActivity {
                 Log.w("APPX", "Failed to read value", error.toException());
             }
         });
+
         //____________________________________________________________________________//
-        //_________________________________NOMBRE DE JOUEUR_________________________//
+        //_______________________  NOMBRE DE JOUEURS EN JEU __________________________//
+        //____________________________________________________________________________//
+
         final DatabaseReference myRefNbPlayer = database.getReference("nbPlayers");
-        // Tourne une fois sur nbPLayers, pour récupérer le numero du joueurs
+        // Est exécuté une fois sur nbPLayers, pour récupérer le nombre de joueurs en jeu
         myRefNbPlayer.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -89,12 +98,11 @@ public class MenuActivity extends AppCompatActivity {
             }
         });
 
-        // Tourne à chaque fois que le valeur nbWaiting change dans Firebase
+        // Est exécuté à chaque fois que la valeur nbPlayer change dans Firebase
         myRefNbPlayer.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 nbPlayers = dataSnapshot.getValue(Integer.class);
-
             }
 
             @Override
@@ -104,8 +112,8 @@ public class MenuActivity extends AppCompatActivity {
         });
     }
 
-    //OnPause retire le joueur de decompte Firebase
-    //   Si c'est le derneir joueur : clear table + reset first player
+    // onStop retire le joueur du décompte Firebase
+    // Si c'est le dernier joueur : clear table + reset first player
     @Override
     protected void onStop() {
         super.onStop();
@@ -113,8 +121,8 @@ public class MenuActivity extends AppCompatActivity {
         final DatabaseReference myRefNb = database.getReference("nbWaiting");
         myRefNb.setValue(nbWaiting - 1);
     }
-    //OnPause retire le joueur de decompte Firebase
-    //   Si c'est le derneir joueur : clear table + reset first player
+
+    // onRestart ajoute le joueur au decompte Firebase
     @Override
     protected void onRestart() {
         super.onRestart();
@@ -123,7 +131,8 @@ public class MenuActivity extends AppCompatActivity {
             myRefNb.setValue(nbWaiting + 1);
         }
 
-
+    // Initialisation de tous les boutons
+    // Bouton permettant de lancer la partie
     private void setLaunchBtn()
     {
         Button launchBtn = (Button) findViewById(R.id.btn_launch);
@@ -137,34 +146,7 @@ public class MenuActivity extends AppCompatActivity {
         });
     }
 
-    private void ThrowTooMuchPlayerAlert() {
-
-        String strToDisplay = "Trop de joueurs dans la partie. Veuillez réessayer plus tard. Il y a " +
-                 + nbWaiting + " joueurs en attente.";
-
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setTitle("Vous êtes de trop !");
-        alertDialog.setMessage(strToDisplay);
-
-        alertDialog.setNeutralButton("Fermer", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.cancel();
-            }
-        });
-        alertDialog.setCancelable(true);
-        alertDialog.show();
-    }
-
-    private void setQuitBtn()
-    {
-        Button launchBtn = (Button) findViewById(R.id.btn_quit);
-        launchBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {finish();}
-
-        });
-    }
+    // Bouton permettant d'ouvrir la page des règles
     private void setRulesBtn()
     {
         Button launchBtn = (Button) findViewById(R.id.btn_rules);
@@ -174,6 +156,23 @@ public class MenuActivity extends AppCompatActivity {
                 startActivity(rulesActivity);
             }
         });
+    }
+
+    // Bouton permettant de quitter la partie
+    private void setQuitBtn()
+    {
+        Button launchBtn = (Button) findViewById(R.id.btn_quit);
+        launchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {AlertBuilder.displayConfirmExitAlert(context, nbWaiting);}
+
+        });
+    }
+
+    // Action au clique sur le bouton retour
+    @Override
+    public void onBackPressed() {
+        AlertBuilder.displayConfirmExitAlert(context, nbWaiting);
     }
 
 
